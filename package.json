@@ -1,0 +1,14 @@
+{
+  "name": "kinkan-no-tohai",
+  "version": "1.0.0",
+  "description": "金緘の透牌 - provably fair four-player riichi mahjong in a single HTML file",
+  "private": true,
+  "scripts": {
+    "build": "node build.js",
+    "test": "node test/test.js && node test/simtest.js 10",
+    "test:ui": "node test/uitest.js"
+  },
+  "devDependencies": {
+    "jsdom": "^26.0.0"
+  }
+}

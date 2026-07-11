@@ -1,2 +1,42 @@
-# kinkan-no-tohai
-Mahjong with nothing but luck and skill—no rigged deals, no omniscient CPUs, and SHA-256 commit–reveal verification for every wall.
+# 金緘の透牌(きんかんのとうはい)
+
+> Kinkan no Tohai — a provably fair riichi mahjong game in a single HTML file. Currently Japanese only; i18n is planned.
+
+**配牌操作のない**ことを自分で証明できる、四人打ちリーチ麻雀です。
+
+HTML 1枚で完結。ビルド不要・サーバ不要・依存なし。CPU 3人を相手に半荘戦をひとりで遊べます(全役・符計算・鳴き・赤5対応)。
+
+## 公正性の設計 = 「金緘」
+
+- 牌山は `crypto.getRandomValues()` による Fisher–Yates シャッフル。136枚は**配牌前に**確定し、以後一切触りません。
+- 各局の開始時に、ソルト+山の並び順の SHA-256 を「封緘」として公開。局が終わるとソルトと並び順を開封するので、ハッシュを再計算すれば途中で山がすり替えられていないことを誰でも検証できます(ページ内でワンクリック検証可)。
+- CPU に渡るのは「自分の手牌+公開情報(捨て牌・副露・ドラ表示)」だけの制限付きビューオブジェクト。山や他家の手牌は、遠慮しているのではなく**構造上渡らない**ようになっています。
+
+## 採用ルール
+
+半荘戦・全役(役満含む)・符計算・鳴き(チー/ポン/カン)・喰い断あり・赤5各1枚・頭ハネ・トビ終了・30000点返し(未達なら西入サドンデス)。
+
+未採用(v1): ダブル役満・流し満貫・途中流局(九種九牌など)・包(パオ)。
+
+## 牌画像の差し替え
+
+`src/ui.js` の `tileFaceHTML()` / `tileLabel()` の2関数を編集するだけです。アクセシビリティ用のラベル付けも自動で追従します。
+
+## 開発
+
+- `src/engine.js`(ルール)/ `src/game.js`(進行とCPU)/ `src/ui.js`(DOM)/ `src/template.html` を編集し、`npm run build` で `index.html` を生成します。`index.html` は生成物なので直接編集しません。
+- `npm test` で単体テスト(シャンテン/役/符/点数 44件)とCPU自動対局シミュレーション(点数収支の不変条件を検証)が走ります。UIに触れたら `npm run test:ui`(jsdom E2E)も。
+
+## 更新履歴
+
+### [1.0.0] - 2026-07-12
+
+#### 追加
+
+- 初回リリース。四人打ちリーチ麻雀(半荘戦・全役・符計算・鳴き・赤5)+公正性ギミック「金緘」
+- 公正性ギミック「金緘」: 牌山の SHA-256 コミットメントを局開始時に公開し、局終了後に開封してページ内で検証できる機能
+- crypto.getRandomValues による牌山生成と、公開情報のみを参照するCPUプレイヤー3人
+- テストスイート(単体テスト44件・CPU自動対局シミュレーション・jsdom E2E)
+
+全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
+

@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>金緘の透牌 - イカサマのない麻雀</title>
+<style>
+:root {
+  --felt: #1d5242;
+  --felt-deep: #10352a;
+  --ivory: #f6f1e3;
+  --ivory-dim: #e8e0cb;
+  --ink: #2b241b;
+  --aka: #c73a22;
+  --pin: #2a5f8a;
+  --sou: #1f6b3f;
+  --gold: #d8a83f;
+  --line: #b9ac8e;
+  --font-body: "BIZ UDPGothic", "Hiragino Kaku Gothic ProN", sans-serif;
+  --font-disp: "BIZ UDPMincho", "Hiragino Mincho ProN", serif;
+}
+* { box-sizing: border-box; }
+html { height: 100%; }
+body {
+  margin: 0;
+  min-height: 100%;
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--ivory);
+  background:
+    radial-gradient(1200px 700px at 50% 30%, rgba(255, 255, 255, .06), transparent 60%),
+    linear-gradient(var(--felt), var(--felt-deep));
+  background-attachment: fixed;
+}
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.skip-link {
+  position: absolute;
+  left: 8px; top: -48px;
+  background: var(--ivory);
+  color: var(--ink);
+  padding: 8px 16px;
+  border-radius: 0 0 8px 8px;
+  z-index: 50;
+  transition: top .15s;
+}
+.skip-link:focus { top: 0; }
+:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+
+/* ---------- ヘッダー ---------- */
+.app-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 20px;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(246, 241, 227, .25);
+}
+.brand {
+  margin: 0;
+  font-family: var(--font-disp);
+  font-size: 28px;
+  letter-spacing: .12em;
+}
+.brand .en {
+  font-size: 13px;
+  letter-spacing: .3em;
+  color: var(--gold);
+  margin-left: 6px;
+}
+.brand .ver {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: normal;
+  color: var(--ivory-dim);
+  margin-left: 8px;
+}
+.kyoku-head { margin: 0; font-size: 16px; }
+.header-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.header-actions label { font-size: 14px; }
+select {
+  font: inherit;
+  font-size: 15px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--ivory);
+  color: var(--ink);
+}
+
+/* ---------- ボタン ---------- */
+.btn {
+  font: inherit;
+  font-weight: 700;
+  font-size: 16px;
+  min-height: 44px;
+  padding: 6px 18px;
+  border-radius: 8px;
+  border: 2px solid var(--line);
+  background: var(--ivory);
+  color: var(--ink);
+  cursor: pointer;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, .3);
+}
+.btn:hover { background: #fff; }
+.btn:active { transform: translateY(1px); box-shadow: none; }
+.btn.primary { background: var(--gold); border-color: #a67c22; }
+.btn.danger { background: var(--aka); border-color: #7e2314; color: var(--ivory); }
+.btn.small { min-height: 36px; font-size: 14px; padding: 2px 12px; }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+
+/* ---------- スタート画面 ---------- */
+.start {
+  max-width: 720px;
+  margin: 6vh auto;
+  padding: 0 20px;
+  text-align: center;
+}
+.start .big-char {
+  font-family: var(--font-disp);
+  font-size: clamp(90px, 22vw, 180px);
+  line-height: 1.1;
+  margin: 0;
+  color: var(--ivory);
+  text-shadow: 0 0 40px rgba(216, 168, 63, .35);
+}
+.start h2 { font-family: var(--font-disp); font-size: 24px; font-weight: 600; margin: 8px 0 16px; }
+.start p { text-align: left; }
+.start .fair-points {
+  text-align: left;
+  margin: 20px auto;
+  max-width: 560px;
+  background: rgba(0, 0, 0, .25);
+  border: 1px solid rgba(246, 241, 227, .3);
+  border-radius: 12px;
+  padding: 16px 20px;
+}
+.start .fair-points p { margin: 8px 0; }
+.start .btn { font-size: 20px; padding: 12px 40px; margin-top: 8px; }
+
+/* ---------- 卓 ---------- */
+.table-wrap { padding: 12px; max-width: 1200px; margin: 0 auto; }
+.board {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr) 200px;
+  grid-template-rows: auto auto auto;
+  grid-template-areas:
+    "kami toimen shimo"
+    "kami center shimo"
+    "kami me     shimo";
+  gap: 12px;
+}
+.area-2 { grid-area: toimen; }
+.area-3 { grid-area: kami; }
+.area-1 { grid-area: shimo; }
+.center-area { grid-area: center; }
+.area-0 { grid-area: me; }
+
+.seat {
+  background: rgba(0, 0, 0, .22);
+  border: 1px solid rgba(246, 241, 227, .18);
+  border-radius: 12px;
+  padding: 10px;
+}
+.p-info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  margin-bottom: 6px;
+  font-size: 15px;
+}
+.p-info .p-name { font-weight: 700; }
+.p-info .p-wind {
+  font-family: var(--font-disp);
+  display: inline-block;
+  min-width: 28px;
+  text-align: center;
+  border: 1px solid rgba(246, 241, 227, .5);
+  border-radius: 6px;
+  padding: 0 4px;
+}
+.p-info .p-wind.dealer { background: var(--aka); border-color: var(--aka); }
+.badge {
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 6px;
+  padding: 1px 8px;
+  background: var(--gold);
+  color: var(--ink);
+}
+.badge.riichi { background: var(--aka); color: var(--ivory); }
+.p-waits { font-size: 13px; color: var(--ivory-dim); width: 100%; }
+.p-backs, .p-melds, .p-river { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 6px; }
+.p-river { max-width: calc(6 * 33px); }
+.meld-group {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 6px;
+  background: rgba(246, 241, 227, .12);
+}
+.area-3 .p-river, .area-1 .p-river { max-width: calc(4 * 33px); }
+
+/* ---------- 中央 ---------- */
+.center-area {
+  background: rgba(0, 0, 0, .35);
+  border: 1px solid rgba(216, 168, 63, .5);
+  border-radius: 12px;
+  padding: 12px 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 22px;
+}
+.c-kyoku {
+  font-family: var(--font-disp);
+  font-size: 30px;
+  letter-spacing: .1em;
+  margin: 0;
+}
+.c-sub { font-size: 14px; color: var(--ivory-dim); }
+.c-dora { display: flex; align-items: center; gap: 4px; }
+.c-dora .lbl { font-size: 13px; margin-right: 4px; color: var(--ivory-dim); }
+.seal-btn {
+  margin-left: auto;
+  font-family: var(--font-disp);
+  background: transparent;
+  color: var(--gold);
+  border: 2px solid var(--gold);
+  border-radius: 10px;
+  padding: 4px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  text-align: left;
+  line-height: 1.35;
+}
+.seal-btn .seal-mark { font-size: 20px; letter-spacing: .2em; }
+.seal-btn code { font-family: ui-monospace, monospace; font-size: 12px; }
+
+/* ---------- 牌 ---------- */
+.tile {
+  --tw: 46px;
+  width: var(--tw);
+  height: calc(var(--tw) * 1.38);
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  background: linear-gradient(#fcf8ee, #ece2c8);
+  border: 1px solid var(--line);
+  border-radius: calc(var(--tw) * .14);
+  box-shadow: 0 2px 0 #a5987b, 0 3px 5px rgba(0, 0, 0, .4);
+  color: var(--ink);
+  padding: 0;
+  font-family: var(--font-body);
+  flex-shrink: 0;
+}
+.tile.small { --tw: 30px; }
+.tile .tf-n { font-size: calc(var(--tw) * .44); font-weight: 700; line-height: 1; }
+.tile .tf-n.red { color: var(--aka); }
+.tile .tf-s { font-size: calc(var(--tw) * .36); line-height: 1; font-weight: 700; }
+.tile .tf-s.man { color: var(--aka); }
+.tile .tf-s.pin { color: var(--pin); }
+.tile .tf-s.sou { color: var(--sou); }
+.tile .tf-h { font-size: calc(var(--tw) * .52); font-weight: 700; line-height: 1; }
+.tile .tf-h.h-hatsu { color: var(--sou); }
+.tile .tf-h.h-chun { color: var(--aka); }
+.tile.back {
+  background: linear-gradient(#37705a, #1c4636);
+  border-color: #12291f;
+}
+.tile.rot { transform: rotate(90deg); margin: 0 calc(var(--tw) * .19); }
+.tile.faded { opacity: .35; }
+.tile.marked { outline: 3px solid var(--gold); outline-offset: 1px; }
+button.tile { cursor: pointer; }
+button.tile:not(:disabled):hover { transform: translateY(-6px); }
+button.tile:disabled { cursor: default; filter: saturate(.6) brightness(.82); }
+
+/* ---------- 自分の手牌・アクション ---------- */
+.hand-row {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 10px;
+  min-height: 72px;
+}
+.hand-row .drawn-gap { width: 18px; }
+.actionbar {
+  margin-top: 10px;
+  min-height: 92px;
+  background: rgba(0, 0, 0, .35);
+  border: 1px solid rgba(246, 241, 227, .25);
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+.actionbar .prompt-label { margin: 0 0 8px; font-weight: 700; }
+.actionbar .action-buttons { display: flex; flex-wrap: wrap; gap: 10px; }
+
+/* ---------- ログ ---------- */
+.log {
+  max-width: 1200px;
+  margin: 8px auto 40px;
+  padding: 0 16px;
+  color: var(--ivory-dim);
+  font-size: 14px;
+}
+.log summary { cursor: pointer; }
+.log ol { max-height: 200px; overflow-y: auto; }
+
+/* ---------- ダイアログ ---------- */
+dialog {
+  border: none;
+  border-radius: 14px;
+  background: var(--ivory);
+  color: var(--ink);
+  padding: 22px 26px;
+  max-width: min(640px, 92vw);
+  width: 100%;
+  font-family: var(--font-body);
+  line-height: 1.7;
+}
+dialog::backdrop { background: rgba(6, 20, 15, .72); }
+dialog h2 {
+  font-family: var(--font-disp);
+  margin: 0 0 10px;
+  font-size: 24px;
+  border-bottom: 2px solid var(--gold);
+  padding-bottom: 6px;
+}
+dialog h3 { font-size: 17px; margin: 16px 0 6px; }
+.result-hand { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin: 10px 0; }
+.result-hand .gap { width: 14px; }
+.yaku-table { width: 100%; border-collapse: collapse; margin: 8px 0; }
+.yaku-table td { padding: 3px 8px; border-bottom: 1px dashed var(--line); }
+.yaku-table td:last-child { text-align: right; white-space: nowrap; }
+.score-line { display: flex; justify-content: space-between; gap: 12px; padding: 2px 8px; }
+.score-line .plus { color: #1f6b3f; font-weight: 700; }
+.score-line .minus { color: var(--aka); font-weight: 700; }
+.points-headline {
+  font-family: var(--font-disp);
+  font-size: 26px;
+  text-align: center;
+  margin: 12px 0;
+}
+.dlg-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+.hash-box {
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+  word-break: break-all;
+  background: #efe8d5;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin: 6px 0;
+}
+.wall-order {
+  width: 100%;
+  height: 90px;
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #efe8d5;
+  color: var(--ink);
+}
+.verify-ok { color: #1f6b3f; font-weight: 700; }
+.verify-ng { color: var(--aka); font-weight: 700; }
+.rank-table { width: 100%; border-collapse: collapse; }
+.rank-table td, .rank-table th { padding: 6px 10px; border-bottom: 1px solid var(--line); text-align: left; }
+.rank-table td:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ---------- モバイル ---------- */
+@media (max-width: 860px) {
+  .board {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "toimen toimen"
+      "kami   shimo"
+      "center center"
+      "me     me";
+  }
+  .tile { --tw: 40px; }
+  .tile.small { --tw: 26px; }
+  .c-kyoku { font-size: 24px; }
+  .area-3 .p-river, .area-1 .p-river { max-width: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+  button.tile:not(:disabled):hover { transform: none; }
+}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#hand">手牌へ移動</a>
+
+<header class="app-header">
+  <h1 class="brand">金緘の透牌<span class="en">KINKAN NO TOHAI</span><span class="ver">v@@VERSION@@</span></h1>
+  <p class="kyoku-head" id="head-kyoku"></p>
+  <div class="header-actions">
+    <label>進行速度
+      <select id="speed">
+        <option value="normal">ふつう</option>
+        <option value="fast">はやい</option>
+      </select>
+    </label>
+    <button class="btn small" id="btn-help" type="button">遊び方・公正性</button>
+    <button class="btn small" id="btn-new" type="button">新規対局</button>
+  </div>
+</header>
+
+<main>
+  <section class="start" id="start-screen">
+    <p class="big-char" aria-hidden="true">透</p>
+    <h2>イカサマのない、ただの運と腕の麻雀。</h2>
+    <div class="fair-points">
+      <p><strong>配牌操作なし</strong> - 牌山は暗号論的乱数(crypto.getRandomValues)だけで積みます。</p>
+      <p><strong>CPUは覗けない</strong> - CPUの思考には自分の手牌と公開情報しか渡されない構造です。</p>
+      <p><strong>あとから検証できる</strong> - 局の開始時に牌山のSHA-256ハッシュを封緘として公開し、局が終わると中身を開封。誰でも改ざれていないことを確かめられます。</p>
+    </div>
+    <p>ルール: 四人打ち半荘戦・全役対応・喰い断あり・赤5各1枚・頭ハネ・30000点返し(届かなければ西入)。</p>
+    <button class="btn primary" id="btn-start" type="button">対局開始</button>
+  </section>
+
+  <section class="table-wrap" id="table" hidden>
+    <div class="board">
+      <section class="seat area-2" aria-label="対面のプレイヤー">
+        <div class="p-info" id="info-2"></div>
+        <div class="p-backs" id="backs-2"></div>
+        <div class="p-melds" id="melds-2"></div>
+        <div class="p-river" id="river-2" aria-label="対面の捨て牌"></div>
+      </section>
+      <section class="seat area-3" aria-label="左側(上家)のプレイヤー">
+        <div class="p-info" id="info-3"></div>
+        <div class="p-backs" id="backs-3"></div>
+        <div class="p-melds" id="melds-3"></div>
+        <div class="p-river" id="river-3" aria-label="上家の捨て牌"></div>
+      </section>
+      <section class="seat area-1" aria-label="右側(下家)のプレイヤー">
+        <div class="p-info" id="info-1"></div>
+        <div class="p-backs" id="backs-1"></div>
+        <div class="p-melds" id="melds-1"></div>
+        <div class="p-river" id="river-1" aria-label="下家の捨て牌"></div>
+      </section>
+      <section class="center-area" aria-label="場の情報">
+        <p class="c-kyoku" id="c-kyoku"></p>
+        <div>
+          <div class="c-sub" id="c-sub"></div>
+          <div class="c-sub" id="c-wall"></div>
+        </div>
+        <div class="c-dora" id="c-dora"></div>
+        <button class="seal-btn" id="btn-seal" type="button"></button>
+      </section>
+      <section class="seat area-0" aria-label="あなたの手元">
+        <div class="p-info" id="info-0"></div>
+        <div class="p-river" id="river-0" aria-label="あなたの捨て牌"></div>
+        <div class="p-melds" id="melds-0"></div>
+        <div class="hand-row" id="hand" aria-label="あなたの手牌"></div>
+      </section>
+    </div>
+    <div class="actionbar">
+      <p class="prompt-label" id="prompt-label"></p>
+      <div class="action-buttons" id="action-buttons"></div>
+    </div>
+  </section>
+</main>
+
+<p id="announcer" class="sr-only" role="status" aria-live="polite"></p>
+
+<details class="log">
+  <summary>対局ログ</summary>
+  <ol id="log-list"></ol>
+</details>
+
+<dialog id="dlg-result" aria-labelledby="result-title">
+  <h2 id="result-title"></h2>
+  <div id="result-body"></div>
+  <div class="dlg-actions">
+    <button class="btn small" id="btn-result-fair" type="button">山を開封して検証</button>
+    <button class="btn primary" id="btn-next" type="button">次へ</button>
+  </div>
+</dialog>
+
+<dialog id="dlg-end" aria-labelledby="end-title">
+  <h2 id="end-title">対局終了</h2>
+  <div id="end-body"></div>
+  <div class="dlg-actions">
+    <button class="btn primary" id="btn-again" type="button">新しい対局を始める</button>
+  </div>
+</dialog>
+
+<dialog id="dlg-fair" aria-labelledby="fair-title">
+  <h2 id="fair-title">牌山の封緘と検証</h2>
+  <div id="fair-body"></div>
+  <div class="dlg-actions">
+    <button class="btn" id="btn-fair-close" type="button">閉じる</button>
+  </div>
+</dialog>
+
+<dialog id="dlg-help" aria-labelledby="help-title">
+  <h2 id="help-title">遊び方・公正性</h2>
+  <div id="help-body">
+    <h3>ゲームの流れ</h3>
+    <p>四人打ちの半荘戦(東場+南場)です。あなたの番になったら、手牌から捨てる牌を選んでください。ツモ・ロン・リーチ・ポン・チー・カンができるときは、画面下にボタンが出ます。</p>
+    <h3>操作</h3>
+    <p>牌はクリック(タップ)で捨てられます。キーボードでは Tab で移動、左右矢印キーで手牌の中を移動、Enter で決定できます。リーチ中のツモあがりは自動で成立します。ロンを見逃すとフリテンになるのでご注意を。</p>
+    <h3>採用ルール</h3>
+    <p>全役対応・符計算あり・喰い断あり・後付けあり・赤5各1枚・頭ハネ(ダブロンなし)・トビ終了あり・南4終了時に30000点未満なら西入(サドンデス)。ダブル役満・流し満貫・途中流局(九種九牌など)は採用していません。</p>
+    <h3>公正性のしくみ</h3>
+    <p>局のはじめに136枚の牌山を暗号論的乱数で積み、その並び順のSHA-256ハッシュを「封緘」として先に公開します。局が終わると並び順とソルトを開封するので、ハッシュを再計算すれば「途中で山がすり替えられていない」ことを誰でも検証できます。CPUの思考ルーチンには自分の手牌と全員の公開情報(捨て牌・副露・ドラ表示)しか渡されません。</p>
+  </div>
+  <div class="dlg-actions">
+    <button class="btn" id="btn-help-close" type="button">閉じる</button>
+  </div>
+</dialog>
+
+<script type="module">
+//@@ENGINE@@
+//@@GAME@@
+//@@UI@@
+</script>
+</body>
+</html>
