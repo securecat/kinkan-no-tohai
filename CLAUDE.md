@@ -14,6 +14,8 @@
 - `index.html` : 生成物。**直接編集しない**。必ず src/ を編集して `npm run build`
 
 ## 開発サイクル
+- `src/engine.js` のルール変更(役・符・点数など)は、正解値つきのテストケースを `test/test.js` に先に追加してから実装すること(テストファースト必須)
+
 1. src/ を編集
 2. `npm run build` で index.html を再生成
 3. `npm test` (単体44件+CPU自動対局10戦の収支検証)を必ず通す
