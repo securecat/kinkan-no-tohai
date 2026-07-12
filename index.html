@@ -273,6 +273,8 @@ select {
 }
 .tile.small { --tw: 30px; }
 .tile .tf-n { font-size: calc(var(--tw) * .44); font-weight: 700; line-height: 1; }
+.tile .tf-n.pin { color: var(--pin); font-size: calc(var(--tw) * .52); }
+.tile .tf-n.sou { color: var(--sou); }
 .tile .tf-n.red { color: var(--aka); }
 .tile .tf-s { font-size: calc(var(--tw) * .36); line-height: 1; font-weight: 700; }
 .tile .tf-s.man { color: var(--aka); }
@@ -411,7 +413,7 @@ dialog h3 { font-size: 17px; margin: 16px 0 6px; }
 <a class="skip-link" href="#hand">手牌へ移動</a>
 
 <header class="app-header">
-  <h1 class="brand">金緘の透牌<span class="en">KINKAN NO TOHAI</span><span class="ver">v1.0.0</span></h1>
+  <h1 class="brand">金緘の透牌<span class="en">KINKAN NO TOHAI</span><span class="ver">v1.0.1</span></h1>
   <p class="kyoku-head" id="head-kyoku"></p>
   <div class="header-actions">
     <label>進行速度
@@ -1822,6 +1824,7 @@ const SPEED_MS = {
      aria-label は tileLabel() が付けるので画像は alt="" 相当で構いません。
    ---------------------------------------------------------- */
 const NUM_KANJI = ["一", "二", "三", "四", "五", "六", "七", "八", "九"];
+const NUM_CIRCLED = ["①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨"];
 function tileLabel(k, red) {
   return (red ? "赤" : "") + KIND_NAMES[k];
 }
@@ -1831,10 +1834,10 @@ function tileFaceHTML(k, red) {
     return `<span class="tf-h ${cls}" aria-hidden="true">${KIND_NAMES[k]}</span>`;
   }
   const suit = suitOf(k), n = numOf(k);
-  const numTxt = suit === 0 ? NUM_KANJI[n - 1] : String(n);
+  const numTxt = suit === 0 ? NUM_KANJI[n - 1] : suit === 1 ? NUM_CIRCLED[n - 1] : String(n);
   const suitTxt = ["萬", "筒", "索"][suit];
   const suitCls = ["man", "pin", "sou"][suit];
-  return `<span class="tf-n ${red ? "red" : ""}" aria-hidden="true">${numTxt}</span>` +
+  return `<span class="tf-n ${suitCls} ${red ? "red" : ""}" aria-hidden="true">${numTxt}</span>` +
     `<span class="tf-s ${suitCls}" aria-hidden="true">${suitTxt}</span>`;
 }
 function tileNode(tile, o = {}) {

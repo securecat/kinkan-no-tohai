@@ -23,6 +23,7 @@ const SPEED_MS = {
      aria-label は tileLabel() が付けるので画像は alt="" 相当で構いません。
    ---------------------------------------------------------- */
 const NUM_KANJI = ["一", "二", "三", "四", "五", "六", "七", "八", "九"];
+const NUM_CIRCLED = ["①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨"];
 function tileLabel(k, red) {
   return (red ? "赤" : "") + KIND_NAMES[k];
 }
@@ -32,10 +33,10 @@ function tileFaceHTML(k, red) {
     return `<span class="tf-h ${cls}" aria-hidden="true">${KIND_NAMES[k]}</span>`;
   }
   const suit = suitOf(k), n = numOf(k);
-  const numTxt = suit === 0 ? NUM_KANJI[n - 1] : String(n);
+  const numTxt = suit === 0 ? NUM_KANJI[n - 1] : suit === 1 ? NUM_CIRCLED[n - 1] : String(n);
   const suitTxt = ["萬", "筒", "索"][suit];
   const suitCls = ["man", "pin", "sou"][suit];
-  return `<span class="tf-n ${red ? "red" : ""}" aria-hidden="true">${numTxt}</span>` +
+  return `<span class="tf-n ${suitCls} ${red ? "red" : ""}" aria-hidden="true">${numTxt}</span>` +
     `<span class="tf-s ${suitCls}" aria-hidden="true">${suitTxt}</span>`;
 }
 function tileNode(tile, o = {}) {

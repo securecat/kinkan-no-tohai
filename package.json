@@ -1,6 +1,6 @@
 {
   "name": "kinkan-no-tohai",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "金緘の透牌 - provably fair four-player riichi mahjong in a single HTML file",
   "private": true,
   "scripts": {
