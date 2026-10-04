@@ -4,6 +4,12 @@
 
 フォーマットは [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) に基づき、バージョニングは [Semantic Versioning](https://semver.org/spec/v2.0.0.html) に従います。
 
+## [1.0.4] - 2026-10-05
+
+### 変更
+
+- HTMLの文字コード宣言を、HTML Standardの記述にならって小文字の `<meta charset="utf-8">` に変更
+
 ## [1.0.3] - 2026-08-21
 
 ### 修正
