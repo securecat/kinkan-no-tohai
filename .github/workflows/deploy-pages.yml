@@ -13,27 +13,36 @@ permissions:
   pages: write
   id-token: write
 
+# デプロイが重なったときは、実行中のものを取り消さずに順番に実行する
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: チェックアウト
+        uses: actions/checkout@v7
+      - name: 公開ファイルを配置(index.html のみ)
+        run: |
+          mkdir -p _site
+          cp index.html _site/
+      - name: Pages の設定
+        uses: actions/configure-pages@v6
+      - name: Pages アーティファクトをアップロード
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+  # アップロード直後に同じジョブでデプロイすると、アーティファクトがまだ見えずに失敗することがあるため、ジョブを分ける
   deploy:
+    needs: build
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: チェックアウト
-        uses: actions/checkout@v4
-      - name: 公開ファイルを配置(index.html のみ)
-        run: |
-          mkdir -p _site
-          cp index.html _site/
-      - name: Pages アーティファクトをアップロード
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: _site
       - name: GitHub Pages へデプロイ
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
